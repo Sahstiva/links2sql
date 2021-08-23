@@ -10,20 +10,16 @@ const connection = mysql.createConnection({
     //port:       8889
 });
 
-let fields = [
-                { name: 'UF_TITLE', type: 'text' },
-                { name: 'UF_PAGEID', type: 'text' }
-             ];
 let hlBlock = {
-    name: 'Testpages',
+    name: 'Testpages7',
     language:   [
-                    { lid: 'ru', name: 'Тестовый блок'},
-                    {lid: 'en', name: 'Test block'}
+                    { lid: 'ru', name: 'Тестовый блок7'},
+                    {lid: 'en', name: 'Test block7'}
                 ],
-    table: 'bb_test_pages3',
+    table: 'bb_test_pages7',
     fields : [
-                { name: 'UF_TITLE', type: 'text' },
-                { name: 'UF_PAGEID', type: 'text' }
+                { name: 'UF_TITLE', type: 'text', label: 'Страница' },
+                { name: 'UF_PAGEID', type: 'text', label: 'Метка'}
             ]
 };
 createHlblock(hlBlock);
@@ -99,6 +95,21 @@ async function addHlblockLang(hlBlock) {
 
 /* 5. Добавление записей в таблицу пользовательских типов  */
 async function addHlblockUserFields(hlBlock) {
+    let sqlQuery = 'INSERT INTO b_user_field (ENTITY_ID, FIELD_NAME, USER_TYPE_ID, XML_ID, SORT, MULTIPLE, MANDATORY, SHOW_FILTER, SHOW_IN_LIST, EDIT_IN_LIST, IS_SEARCHABLE, SETTINGS)' + 'VALUES';
+    hlBlock.fields.forEach(field => {
+        sqlQuery += `('HLBLOCK_${hlBlock.id}', '${field.name}', '${field.type}','', '100','N', '${field.hasOwnProperty('mandatory') ? field.mandatory : 'N'}', 'N', 'Y', 'Y', 'N','a:6:{s:4:"SIZE";i:20;s:4:"ROWS";i:1;s:6:"REGEXP";s:0:"";s:10:"MIN_LENGTH";i:0;s:10:"MAX_LENGTH";i:0;s:13:"DEFAULT_VALUE";s:0:"";}'),`;
+    });
+    // a:6:{s:4:"SIZE";i:20;s:4:"ROWS";i:1;s:6:"REGEXP";s:0:"";s:10:"MIN_LENGTH";i:0;s:10:"MAX_LENGTH";i:0;s:13:"DEFAULT_VALUE";s:0:"";}
+    // a:6:{s:4:"SIZE";i:20;s:4:"ROWS";i:1;s:6:"REGEXP";s:0:"";s:10:"MIN_LENGTH";i:0;s:10:"MAX_LENGTH";i:0;s:13:"DEFAULT_VALUE";s:0:"";}
+    connection.promise().query(sqlQuery.slice(0,-1))
+        .then(([result,fields]) => {
+            console.log(`Добавлены ${result.affectedRows} пользовательских полей для highloadblock-а ${hlBlock.name}`)
+            connection.end();
+        })
+        .catch(error => {
+            console.error(error);
+        });
+
     //
     // ID
     // ENTITY_ID
